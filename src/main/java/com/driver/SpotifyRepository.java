@@ -1,8 +1,8 @@
 package com.driver;
 
-import java.util.*;
-
 import org.springframework.stereotype.Repository;
+
+import java.util.*;
 
 @Repository
 public class SpotifyRepository {
@@ -20,8 +20,7 @@ public class SpotifyRepository {
     public List<Album> albums;
     public List<Artist> artists;
 
-    public SpotifyRepository(){
-        //To avoid hitting apis multiple times, initialize all the hashmaps here with some dummy data
+    public SpotifyRepository() {
         artistAlbumMap = new HashMap<>();
         albumSongMap = new HashMap<>();
         playlistSongMap = new HashMap<>();
@@ -37,37 +36,60 @@ public class SpotifyRepository {
         artists = new ArrayList<>();
     }
 
-    public User createUser(String name, String mobile) {
+    public User saveUser(User user) {
+        users.add(user);
+        return user;
     }
 
-    public Artist createArtist(String name) {
+    public Artist saveArtist(Artist artist) {
+        artists.add(artist);
+        artistAlbumMap.put(artist, new ArrayList<>());
+        return artist;
     }
 
-    public Album createAlbum(String title, String artistName) {
+    public Album saveAlbum(Album album, String artistName) {
+        Artist artist = findArtistByName(artistName);
+        if (artist != null) {
+            albums.add(album);
+            artistAlbumMap.get(artist).add(album);
+        }
+        return album;
     }
 
-    public Song createSong(String title, String albumName, int length) throws Exception{
+    public Song saveSong(Song song, String albumName) {
+        Album album = findAlbumByName(albumName);
+        if (album != null) {
+            songs.add(song);
+            albumSongMap.computeIfAbsent(album, k -> new ArrayList<>()).add(song);
+        }
+        return song;
     }
 
-    public Playlist createPlaylistOnLength(String mobile, String title, int length) throws Exception {
-
+    public Playlist savePlaylist(Playlist playlist, User creator) {
+        playlists.add(playlist);
+        creatorPlaylistMap.put(creator, playlist);
+        playlistListenerMap.put(playlist, new ArrayList<>(Collections.singleton(creator)));
+        playlistSongMap.put(playlist, new ArrayList<>());
+        return playlist;
     }
 
-    public Playlist createPlaylistOnName(String mobile, String title, List<String> songTitles) throws Exception {
-
+    public Artist findArtistByName(String name) {
+        return artists.stream().filter(a -> a.getName().equals(name)).findFirst().orElse(null);
     }
 
-    public Playlist findPlaylist(String mobile, String playlistTitle) throws Exception {
-
+    public Album findAlbumByName(String name) {
+        return albums.stream().filter(a -> a.getTitle().equals(name)).findFirst().orElse(null);
     }
 
-    public Song likeSong(String mobile, String songTitle) throws Exception {
-
+    public Song findSongByTitle(String title) {
+        return songs.stream().filter(s -> s.getTitle().equals(title)).findFirst().orElse(null);
     }
 
-    public String mostPopularArtist() {
+    public User findUserByMobile(String mobile) {
+        return users.stream().filter(u -> u.getMobile().equals(mobile)).findFirst().orElse(null);
     }
 
-    public String mostPopularSong() {
+    public Playlist findPlaylistByTitle(String title) {
+        return playlists.stream().filter(p -> p.getTitle().equals(title)).findFirst().orElse(null);
     }
 }

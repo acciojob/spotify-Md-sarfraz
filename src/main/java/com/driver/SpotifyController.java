@@ -1,95 +1,63 @@
 package com.driver;
 
-import java.util.*;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("spotify")
+@RequestMapping("/spotify")
 public class SpotifyController {
+    @Autowired
+    SpotifyService spotifyService;
 
-    //Autowire will not work in this case, no need to change this and add autowire
-    SpotifyService spotifyService = new SpotifyService();
-
-    @PostMapping("/add-user")
-    public String createUser(@RequestParam(name = "name") String name, String mobile){
-        //create the user with given name and number
-        return "Success";
+    @PostMapping("/user")
+    public User createUser(@RequestParam String name, @RequestParam String mobile) {
+        return spotifyService.createUser(name, mobile);
     }
 
-    @PostMapping("/add-artist")
-    public String createArtist(@RequestParam(name = "name") String name){
-        //create the artist with given name
-
-        return "Success";
+    @PostMapping("/artist")
+    public Artist createArtist(@RequestParam String name) {
+        return spotifyService.createArtist(name);
     }
 
-    @PostMapping("/add-album")
-    public String createAlbum(@RequestParam(name = "title") String title, String artistName){
-        //If the artist does not exist, first create an artist with given name
-        //Create an album with given title and artist
-
-        return "Success";
+    @PostMapping("/album")
+    public Album createAlbum(@RequestParam String title, @RequestParam String artistName) {
+        return spotifyService.createAlbum(title, artistName);
     }
 
-    @PostMapping("/add-song")
-    public String createSong(String title, String albumName, int length) throws Exception{
-        //If the album does not exist in database, throw "Album does not exist" exception
-        //Create and add the song to respective album
-
-        return "Success";
+    @PostMapping("/song")
+    public Song createSong(@RequestParam String title, @RequestParam String albumName, @RequestParam int length) throws Exception {
+        return spotifyService.createSong(title, albumName, length);
     }
 
-    @PostMapping("/add-playlist-on-length")
-    public String createPlaylistOnLength(String mobile, String title, int length) throws Exception{
-        //Create a playlist with given title and add all songs having the given length in the database to that playlist
-        //The creater of the playlist will be the given user and will also be the only listener at the time of playlist creation
-        //If the user does not exist, throw "User does not exist" exception
-
-        return "Success";
+    @PostMapping("/playlist/length")
+    public Playlist createPlaylistOnLength(@RequestParam String mobile, @RequestParam String title, @RequestParam int length) throws Exception {
+        return spotifyService.createPlaylistOnLength(mobile, title, length);
     }
 
-    @PostMapping("/add-playlist-on-name")
-    public String createPlaylistOnName(String mobile, String title, List<String> songTitles) throws Exception{
-        //Create a playlist with given title and add all songs having the given titles in the database to that playlist
-        //The creater of the playlist will be the given user and will also be the only listener at the time of playlist creation
-        //If the user does not exist, throw "User does not exist" exception
-
-        return "Success";
+    @PostMapping("/playlist/names")
+    public Playlist createPlaylistOnName(@RequestParam String mobile, @RequestParam String title, @RequestBody List<String> songTitles) throws Exception {
+        return spotifyService.createPlaylistOnName(mobile, title, songTitles);
     }
 
-    @PutMapping("/find-playlist")
-    public String findPlaylist(String mobile, String playlistTitle) throws Exception{
-        //Find the playlist with given title and add user as listener of that playlist and update user accordingly
-        //If the user is creater or already a listener, do nothing
-        //If the user does not exist, throw "User does not exist" exception
-        //If the playlist does not exists, throw "Playlist does not exist" exception
-        // Return the playlist after updating
-
-        return "Success";
+    @GetMapping("/playlist")
+    public Playlist findPlaylist(@RequestParam String mobile, @RequestParam String playlistTitle) throws Exception {
+        return spotifyService.findPlaylist(mobile, playlistTitle);
     }
 
-    @PutMapping("/like-song")
-    public String likeSong(String mobile, String songTitle) throws Exception{
-        //The user likes the given song. The corresponding artist of the song gets auto-liked
-        //A song can be liked by a user only once. If a user tried to like a song multiple times, do nothing
-        //However, an artist can indirectly have multiple likes from a user, if the user has liked multiple songs of that artist.
-        //If the user does not exist, throw "User does not exist" exception
-        //If the song does not exist, throw "Song does not exist" exception
-        //Return the song after updating
-
-        return "Success";
+    @PutMapping("/song/like")
+    public Song likeSong(@RequestParam String mobile, @RequestParam String songTitle) throws Exception {
+        return spotifyService.likeSong(mobile, songTitle);
     }
 
-    @GetMapping("/popular-artist")
-    public String mostPopularArtist(){
-        //Return the artist name with maximum likes
-
+    @GetMapping("/artist/popular")
+    public String mostPopularArtist() {
+        return spotifyService.mostPopularArtist();
     }
 
-    @GetMapping("/popular-song")
-    public String mostPopularSong(){
-        //return the song title with maximum likes
-
+    @GetMapping("/song/popular")
+    public String mostPopularSong() {
+        return spotifyService.mostPopularSong();
     }
 }
